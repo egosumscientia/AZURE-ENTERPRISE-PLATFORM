@@ -1,1 +1,6 @@
- 
+subscription_id = "00000000-0000-0000-0000-000000000000"
+tenant_id       = "00000000-0000-0000-0000-000000000000"
+
+location     = "eastus"
+project_name = "enterprise-platform-dev"
+
