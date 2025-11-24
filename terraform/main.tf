@@ -47,12 +47,19 @@ module "postgres" {
   data_subnet_id      = module.network.subnets["data"]
 
   admin_username = "pgadmin"
-  admin_password = "PasswordSuperFuerte123!"
+  admin_password = "123"
 }
 
 module "monitoring" {
-  source       = "./modules/monitoring"
-  project_name = var.project_name
-  location     = var.location
+  source              = "./modules/monitoring"
+  project_name        = var.project_name
+  location            = var.location
+  environment         = var.environment
+
+  resource_group_name     = module.network.resource_group_name
+  application_gateway_id  = module.application_gateway.agw_id
+  vm_ids                  = module.app_vms.vm_ids
+  postgres_id             = module.postgres.postgres_id
 }
+
 
