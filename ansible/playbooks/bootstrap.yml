@@ -1,1 +1,16 @@
- 
+---
+- name: bootstrap phase
+  hosts: app_vms
+  gather_facts: true
+
+  vars:
+    bootstrap_packages:
+      - vim
+      - curl
+      - wget
+      - net-tools
+      - unzip
+      - htop
+
+  roles:
+    - bootstrap

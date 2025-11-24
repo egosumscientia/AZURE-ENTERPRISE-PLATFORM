@@ -1,1 +1,11 @@
- 
+---
+- name: app_install | install packages
+  apt:
+    name: "{{ app_install_packages }}"
+    state: present
+
+- name: app_install | ensure app directory exists
+  file:
+    path: "{{ app_source_dir }}"
+    state: directory
+    mode: "0755"

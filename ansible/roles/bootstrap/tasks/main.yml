@@ -1,1 +1,13 @@
- 
+---
+- name: bootstrap | update apt cache
+  apt:
+    update_cache: yes
+
+- name: bootstrap | upgrade system
+  apt:
+    upgrade: yes
+
+- name: bootstrap | install packages
+  apt:
+    name: "{{ bootstrap_packages }}"
+    state: present

@@ -1,1 +1,15 @@
- 
+---
+- name: hardening | disable unnecessary services
+  systemd:
+    name: "{{ item }}"
+    enabled: no
+    state: stopped
+  loop: "{{ disable_services }}"
+
+- name: hardening | apply sysctl parameters
+  sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: yes
+  loop: "{{ sysctl_parameters | dict2items }}"
