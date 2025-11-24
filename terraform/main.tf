@@ -5,9 +5,12 @@ module "network" {
 }
 
 module "bastion" {
-  source       = "./modules/bastion"
-  project_name = var.project_name
-  location     = var.location
+  source              = "./modules/bastion"
+  project_name        = var.project_name
+  location            = var.location
+  environment         = var.environment
+  resource_group_name = module.network.resource_group_name
+  public_subnet_id    = module.network.subnets["public"]
 }
 
 module "app_vms" {
@@ -33,3 +36,4 @@ module "monitoring" {
   project_name = var.project_name
   location     = var.location
 }
+
