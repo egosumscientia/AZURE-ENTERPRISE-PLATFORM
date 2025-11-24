@@ -6,6 +6,10 @@ output "vnet_name" {
   value = azurerm_virtual_network.vnet.name
 }
 
+output "vnet_id" {
+  value = azurerm_virtual_network.vnet.id
+}
+
 output "subnets" {
   value = {
     public     = azurerm_subnet.public.id
@@ -14,4 +18,3 @@ output "subnets" {
     automation = azurerm_subnet.automation.id
   }
 }
-

@@ -25,15 +25,29 @@ module "app_vms" {
 }
 
 module "application_gateway" {
-  source       = "./modules/application_gateway"
-  project_name = var.project_name
-  location     = var.location
+  source              = "./modules/application_gateway"
+  project_name        = var.project_name
+  location            = var.location
+  environment         = var.environment
+
+  resource_group_name = module.network.resource_group_name
+  public_subnet_id    = module.network.subnets["public"]
+
+  backend_ips = module.app_vms.vm_private_ips
 }
 
 module "postgres" {
-  source       = "./modules/postgres"
-  project_name = var.project_name
-  location     = var.location
+  source              = "./modules/postgres"
+  project_name        = var.project_name
+  location            = var.location
+  environment         = var.environment
+
+  resource_group_name = module.network.resource_group_name
+  vnet_id             = module.network.vnet_id
+  data_subnet_id      = module.network.subnets["data"]
+
+  admin_username = "pgadmin"
+  admin_password = "PasswordSuperFuerte123!"
 }
 
 module "monitoring" {
