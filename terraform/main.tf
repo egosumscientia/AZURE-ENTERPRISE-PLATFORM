@@ -17,6 +17,11 @@ module "app_vms" {
   source       = "./modules/app_vms"
   project_name = var.project_name
   location     = var.location
+  environment  = var.environment
+
+  resource_group_name = module.network.resource_group_name
+  app_subnet_id       = module.network.subnets["app"]
+  ssh_public_key_path = var.ssh_public_key_path
 }
 
 module "application_gateway" {

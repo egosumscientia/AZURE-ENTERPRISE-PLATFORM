@@ -1,4 +1,4 @@
- resource "azurerm_resource_group" "rg" {
+resource "azurerm_resource_group" "rg" {
   name     = "${var.project_name}-rg"
   location = var.location
 
@@ -116,7 +116,7 @@ resource "azurerm_network_security_rule" "public_https_in" {
   source_address_prefix       = "*"
   destination_address_prefix  = "*"
   network_security_group_name = azurerm_network_security_group.public_nsg.name
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name         = azurerm_resource_group.rg.name
 }
 
 # APP: permite tráfico desde Application Gateway
@@ -131,7 +131,7 @@ resource "azurerm_network_security_rule" "app_from_public" {
   destination_port_range      = "*"
   destination_address_prefix  = "*"
   network_security_group_name = azurerm_network_security_group.app_nsg.name
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name         = azurerm_resource_group.rg.name
 }
 
 # DATA: permite solo tráfico desde APP (Zero-Trust)
@@ -146,7 +146,7 @@ resource "azurerm_network_security_rule" "data_from_app" {
   destination_port_range      = "*"
   destination_address_prefix  = "*"
   network_security_group_name = azurerm_network_security_group.data_nsg.name
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name         = azurerm_resource_group.rg.name
 }
 
 # AUTOMATION: permite SSH desde Bastion y salida a todos
@@ -161,7 +161,7 @@ resource "azurerm_network_security_rule" "automation_ssh" {
   destination_port_range      = "22"
   destination_address_prefix  = "*"
   network_security_group_name = azurerm_network_security_group.automation_nsg.name
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name         = azurerm_resource_group.rg.name
 }
 
 # -----------------------------------

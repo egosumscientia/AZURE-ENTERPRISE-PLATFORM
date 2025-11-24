@@ -6,3 +6,4 @@ project_name = "enterprise-platform-dev"
 
 environment = "dev"
 
+ssh_public_key_path = "C:/Users/petor/.ssh/id_ed25519.pub"

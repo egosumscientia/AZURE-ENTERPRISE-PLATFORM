@@ -1,0 +1,53 @@
+# ===========================
+# TERRAFORM
+# ===========================
+**/.terraform/
+**/.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraform.tfvars
+
+# Variables locales
+*.tfvars
+*.tfvars.json
+
+# Planes de terraform
+*.plan
+*.tfplan
+
+# ===========================
+# ANSIBLE
+# ===========================
+*.retry
+*.vault-pass
+*.vault_pass
+*.vault
+*.secret
+*.secrets
+
+# Archivos temporales
+*.tmp
+*.bak
+*.swp
+
+# ===========================
+# PYTHON (si usas ansible + scripts)
+# ===========================
+__pycache__/
+*.pyc
+*.pyo
+
+# ===========================
+# SISTEMA / EDITOR
+# ===========================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log

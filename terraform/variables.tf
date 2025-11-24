@@ -1,4 +1,4 @@
- variable "subscription_id" {
+variable "subscription_id" {
   description = "ID de la suscripción de Azure"
   type        = string
 }
@@ -24,5 +24,10 @@ variable "environment" {
   description = "Entorno de despliegue (dev, qa, prod)"
   type        = string
 }
+
+variable "ssh_public_key_path" {
+  type = string
+}
+
 
 
