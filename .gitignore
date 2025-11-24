@@ -51,3 +51,9 @@ Thumbs.db
 .vscode/
 .idea/
 *.log
+
+# ===========================
+# TERRAFORM
+# ===========================
+.terraform/
+.terraform.lock.hcl
