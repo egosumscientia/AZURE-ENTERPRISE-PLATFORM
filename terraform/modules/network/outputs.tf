@@ -18,3 +18,7 @@ output "subnets" {
     automation = azurerm_subnet.automation.id
   }
 }
+
+output "bastion_subnet_id" {
+  value = azurerm_subnet.bastion.id
+}

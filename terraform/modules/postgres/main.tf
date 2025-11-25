@@ -2,7 +2,7 @@
 # Private DNS Zone for PostgreSQL
 # ------------------------------------------------------
 resource "azurerm_private_dns_zone" "postgres_dns" {
-  name                = "postgres.database.azure.com"
+  name = "${var.project_name}.postgres.database.azure.com"
   resource_group_name = var.resource_group_name
 
   tags = {
@@ -34,12 +34,15 @@ resource "azurerm_postgresql_flexible_server" "postgres" {
   storage_mb = 32768
   sku_name   = var.sku_name
 
+  version = "15"
+
   high_availability {
     mode = "ZoneRedundant"
   }
 
   delegated_subnet_id = var.data_subnet_id
   private_dns_zone_id = azurerm_private_dns_zone.postgres_dns.id
+  public_network_access_enabled = false
 
   tags = {
     project = var.project_name

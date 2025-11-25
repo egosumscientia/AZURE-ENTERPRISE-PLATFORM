@@ -23,36 +23,37 @@ resource "azurerm_monitor_diagnostic_setting" "diag_agw" {
   log_analytics_workspace_id = azurerm_log_analytics_workspace.law.id
 
   enabled_log {
-    category = "LinuxSyslog"
+    category = "ApplicationGatewayAccessLog"
   }
 
   enabled_log {
-    category = "LinuxSyslog"
+    category = "ApplicationGatewayPerformanceLog"
   }
 
   enabled_log {
-    category = "LinuxSyslog"
+    category = "ApplicationGatewayFirewallLog"
   }
 
+  enabled_metric {
+    category = "AllMetrics"
+  }
 }
 
 # ------------------------------------------------------
 # Diagnostic Settings - Virtual Machines
 # ------------------------------------------------------
+# IMPORTANTE:
+# Solo se pueden habilitar métricas básicas SIN agente.
+# Syslog/Logs NO funcionan sin Azure Monitor Agent.
 resource "azurerm_monitor_diagnostic_setting" "diag_vms" {
-  count                     = length(var.vm_ids)
-  name                      = "${var.project_name}-diag-vm-${count.index}"
-  target_resource_id        = var.vm_ids[count.index]
+  count                      = length(var.vm_ids)
+  name                       = "${var.project_name}-diag-vm-${count.index}"
+  target_resource_id         = var.vm_ids[count.index]
   log_analytics_workspace_id = azurerm_log_analytics_workspace.law.id
 
-  enabled_log {
-    category = "LinuxSyslog"
+  enabled_metric {
+    category = "AllMetrics"
   }
-
-  enabled_log {
-    category = "LinuxSyslog"
-  }
-
 }
 
 # ------------------------------------------------------
@@ -64,16 +65,10 @@ resource "azurerm_monitor_diagnostic_setting" "diag_postgres" {
   log_analytics_workspace_id = azurerm_log_analytics_workspace.law.id
 
   enabled_log {
-    category = "LinuxSyslog"
+    category = "PostgreSQLLogs"
   }
 
-  enabled_log {
-    category = "LinuxSyslog"
+  enabled_metric {
+    category = "AllMetrics"
   }
-
-  enabled_log {
-    category = "LinuxSyslog"
-  }
-
 }
-

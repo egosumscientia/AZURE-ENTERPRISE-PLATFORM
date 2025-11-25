@@ -24,7 +24,7 @@ resource "azurerm_bastion_host" "bastion" {
 
   ip_configuration {
     name                 = "configuration"
-    subnet_id            = var.public_subnet_id
+    subnet_id            = var.bastion_subnet_id   # ← CORREGIDO
     public_ip_address_id = azurerm_public_ip.bastion_ip.id
   }
 
@@ -33,4 +33,3 @@ resource "azurerm_bastion_host" "bastion" {
     env     = var.environment
   }
 }
-

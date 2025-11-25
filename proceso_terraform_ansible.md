@@ -38,12 +38,12 @@ terraform validate
 
 ### 2.4 Plan
 ```
-terraform plan
+terraform plan -var-file="env/dev.tfvars"
 ```
 
 ### 2.5 Aplicar
 ```
-terraform apply -auto-approve
+terraform apply -var-file="env/dev.tfvars" -auto-approve
 ```
 
 ---

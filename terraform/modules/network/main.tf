@@ -43,6 +43,18 @@ resource "azurerm_subnet" "data" {
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.10.3.0/24"]
+
+  delegation {
+    name = "postgresql-flexible-server-delegation"
+
+    service_delegation {
+      name = "Microsoft.DBforPostgreSQL/flexibleServers"
+      actions = [
+        "Microsoft.Network/virtualNetworks/subnets/join/action",
+        "Microsoft.Network/virtualNetworks/subnets/prepareNetworkPolicies/action"
+      ]
+    }
+  }
 }
 
 resource "azurerm_subnet" "automation" {
@@ -50,6 +62,13 @@ resource "azurerm_subnet" "automation" {
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.10.4.0/24"]
+}
+
+resource "azurerm_subnet" "bastion" {
+  name                 = "AzureBastionSubnet"
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = ["10.10.5.0/24"]
 }
 
 # ------------------------------------------------------
@@ -164,14 +183,23 @@ resource "azurerm_network_security_rule" "automation_ssh" {
   resource_group_name         = azurerm_resource_group.rg.name
 }
 
+resource "azurerm_network_security_rule" "agw_inbound_required" {
+  name                        = "allow-agw-required-ports"
+  priority                    = 110
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_ranges     = ["65200-65535"]
+  source_address_prefix       = "Internet"
+  destination_address_prefix  = "*"
+  resource_group_name         = azurerm_resource_group.rg.name
+  network_security_group_name = azurerm_network_security_group.public_nsg.name
+}
+
 # -----------------------------------
 # Asociar NSGs a las Subnets
 # -----------------------------------
-
-resource "azurerm_subnet_network_security_group_association" "public_assoc" {
-  subnet_id                 = azurerm_subnet.public.id
-  network_security_group_id = azurerm_network_security_group.public_nsg.id
-}
 
 resource "azurerm_subnet_network_security_group_association" "app_assoc" {
   subnet_id                 = azurerm_subnet.app.id

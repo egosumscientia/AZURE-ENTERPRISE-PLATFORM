@@ -11,7 +11,7 @@ variable "tenant_id" {
 variable "location" {
   description = "Región donde se desplegarán los recursos"
   type        = string
-  default     = "eastus"
+  default     = "eastus2"
 }
 
 variable "project_name" {

@@ -19,7 +19,7 @@ variable "resource_group_name" {
   description = "Resource Group donde se desplegará el Bastion"
 }
 
-variable "public_subnet_id" {
+variable "bastion_subnet_id" {
   type        = string
   description = "ID de la subred pública donde se ubicará el Bastion Host"
 }

@@ -10,7 +10,8 @@ module "bastion" {
   location            = var.location
   environment         = var.environment
   resource_group_name = module.network.resource_group_name
-  public_subnet_id    = module.network.subnets["public"]
+
+  bastion_subnet_id = module.network.bastion_subnet_id
 }
 
 module "app_vms" {
