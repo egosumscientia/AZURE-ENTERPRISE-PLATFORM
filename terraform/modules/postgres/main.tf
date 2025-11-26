@@ -43,7 +43,7 @@ resource "azurerm_postgresql_flexible_server" "postgres" {
   administrator_login          = var.admin_username
   administrator_password       = var.admin_password
 
-  sku_name                     = "GP_Standard_D2s_v5"
+  sku_name                     = var.sku_name
   version                      = "16"
   storage_mb                   = 32768
 
