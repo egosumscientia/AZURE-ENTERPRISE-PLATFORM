@@ -21,6 +21,7 @@ resource "azurerm_bastion_host" "bastion" {
   name                = "${var.project_name}-bastion"
   location            = var.location
   resource_group_name = var.resource_group_name
+  sku = "Standard"
 
   ip_configuration {
     name                 = "configuration"
