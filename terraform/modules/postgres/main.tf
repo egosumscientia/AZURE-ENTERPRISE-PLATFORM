@@ -35,10 +35,6 @@ resource "azurerm_postgresql_flexible_server" "postgres" {
   private_dns_zone_id           = azurerm_private_dns_zone.postgres_dns.id
   public_network_access_enabled = false
 
-  high_availability {
-    mode = "ZoneRedundant"
-  }
-
   tags = {
     project = var.project_name
     env     = var.environment
