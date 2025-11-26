@@ -1,3 +1,6 @@
+# -------------------------------
+# Resource Group
+# -------------------------------
 resource "azurerm_resource_group" "rg" {
   name     = "${var.project_name}-rg"
   location = var.location
@@ -8,6 +11,9 @@ resource "azurerm_resource_group" "rg" {
   }
 }
 
+# -------------------------------
+# Virtual Network
+# -------------------------------
 resource "azurerm_virtual_network" "vnet" {
   name                = "${var.project_name}-vnet"
   location            = var.location
@@ -23,12 +29,13 @@ resource "azurerm_virtual_network" "vnet" {
 # -------------------------------
 # Subnets
 # -------------------------------
-
 resource "azurerm_subnet" "public" {
   name                 = "${var.project_name}-snet-public"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.10.1.0/24"]
+
+  depends_on = [azurerm_virtual_network.vnet]
 }
 
 resource "azurerm_subnet" "app" {
@@ -36,6 +43,8 @@ resource "azurerm_subnet" "app" {
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.10.2.0/24"]
+
+  depends_on = [azurerm_virtual_network.vnet]
 }
 
 resource "azurerm_subnet" "data" {
@@ -55,6 +64,8 @@ resource "azurerm_subnet" "data" {
       ]
     }
   }
+
+  depends_on = [azurerm_virtual_network.vnet]
 }
 
 resource "azurerm_subnet" "automation" {
@@ -62,6 +73,8 @@ resource "azurerm_subnet" "automation" {
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.10.4.0/24"]
+
+  depends_on = [azurerm_virtual_network.vnet]
 }
 
 resource "azurerm_subnet" "bastion" {
@@ -69,12 +82,13 @@ resource "azurerm_subnet" "bastion" {
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.10.5.0/24"]
+
+  depends_on = [azurerm_virtual_network.vnet]
 }
 
-# ------------------------------------------------------
-# NSGs (Zero-Trust: todo bloqueado excepto tráfico necesario)
-# ------------------------------------------------------
-
+# -------------------------------
+# Network Security Groups
+# -------------------------------
 resource "azurerm_network_security_group" "public_nsg" {
   name                = "${var.project_name}-nsg-public"
   location            = var.location
@@ -119,11 +133,9 @@ resource "azurerm_network_security_group" "automation_nsg" {
   }
 }
 
-# ---------------------------
+# -------------------------------
 # NSG Rules
-# ---------------------------
-
-# PUBLIC: permite solo tráfico HTTPS entrante
+# -------------------------------
 resource "azurerm_network_security_rule" "public_https_in" {
   name                        = "allow-https-in"
   priority                    = 100
@@ -136,9 +148,10 @@ resource "azurerm_network_security_rule" "public_https_in" {
   destination_address_prefix  = "*"
   network_security_group_name = azurerm_network_security_group.public_nsg.name
   resource_group_name         = azurerm_resource_group.rg.name
+
+  depends_on = [azurerm_network_security_group.public_nsg]
 }
 
-# APP: permite tráfico desde Application Gateway
 resource "azurerm_network_security_rule" "app_from_public" {
   name                        = "public-to-app"
   priority                    = 100
@@ -151,9 +164,10 @@ resource "azurerm_network_security_rule" "app_from_public" {
   destination_address_prefix  = "*"
   network_security_group_name = azurerm_network_security_group.app_nsg.name
   resource_group_name         = azurerm_resource_group.rg.name
+
+  depends_on = [azurerm_network_security_group.app_nsg]
 }
 
-# DATA: permite solo tráfico desde APP (Zero-Trust)
 resource "azurerm_network_security_rule" "data_from_app" {
   name                        = "app-to-data"
   priority                    = 100
@@ -166,9 +180,10 @@ resource "azurerm_network_security_rule" "data_from_app" {
   destination_address_prefix  = "*"
   network_security_group_name = azurerm_network_security_group.data_nsg.name
   resource_group_name         = azurerm_resource_group.rg.name
+
+  depends_on = [azurerm_network_security_group.data_nsg]
 }
 
-# AUTOMATION: permite SSH desde Bastion y salida a todos
 resource "azurerm_network_security_rule" "automation_ssh" {
   name                        = "allow-ssh-from-bastion"
   priority                    = 100
@@ -181,6 +196,8 @@ resource "azurerm_network_security_rule" "automation_ssh" {
   destination_address_prefix  = "*"
   network_security_group_name = azurerm_network_security_group.automation_nsg.name
   resource_group_name         = azurerm_resource_group.rg.name
+
+  depends_on = [azurerm_network_security_group.automation_nsg]
 }
 
 resource "azurerm_network_security_rule" "agw_inbound_required" {
@@ -193,26 +210,41 @@ resource "azurerm_network_security_rule" "agw_inbound_required" {
   destination_port_ranges     = ["65200-65535"]
   source_address_prefix       = "Internet"
   destination_address_prefix  = "*"
-  resource_group_name         = azurerm_resource_group.rg.name
   network_security_group_name = azurerm_network_security_group.public_nsg.name
+  resource_group_name         = azurerm_resource_group.rg.name
+
+  depends_on = [azurerm_network_security_group.public_nsg]
 }
 
-# -----------------------------------
-# Asociar NSGs a las Subnets
-# -----------------------------------
-
+# -------------------------------
+# NSG → Subnet Associations
+# -------------------------------
 resource "azurerm_subnet_network_security_group_association" "app_assoc" {
   subnet_id                 = azurerm_subnet.app.id
   network_security_group_id = azurerm_network_security_group.app_nsg.id
+
+  depends_on = [
+    azurerm_subnet.app,
+    azurerm_network_security_group.app_nsg
+  ]
 }
 
 resource "azurerm_subnet_network_security_group_association" "data_assoc" {
   subnet_id                 = azurerm_subnet.data.id
   network_security_group_id = azurerm_network_security_group.data_nsg.id
+
+  depends_on = [
+    azurerm_subnet.data,
+    azurerm_network_security_group.data_nsg
+  ]
 }
 
 resource "azurerm_subnet_network_security_group_association" "automation_assoc" {
   subnet_id                 = azurerm_subnet.automation.id
   network_security_group_id = azurerm_network_security_group.automation_nsg.id
-}
 
+  depends_on = [
+    azurerm_subnet.automation,
+    azurerm_network_security_group.automation_nsg
+  ]
+}

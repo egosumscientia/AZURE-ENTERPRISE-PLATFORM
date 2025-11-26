@@ -1,6 +1,3 @@
-# ------------------------------------------------------
-# NICs para VMs de aplicación
-# ------------------------------------------------------
 resource "azurerm_network_interface" "app_nic" {
   count               = var.vm_count
   name                = "${var.project_name}-app-nic-${count.index}"
@@ -17,11 +14,10 @@ resource "azurerm_network_interface" "app_nic" {
     project = var.project_name
     env     = var.environment
   }
+
+  depends_on = [var.app_subnet_id]
 }
 
-# ------------------------------------------------------
-# Managed Identity para las VMs
-# ------------------------------------------------------
 resource "azurerm_user_assigned_identity" "app_identity" {
   name                = "${var.project_name}-app-identity"
   location            = var.location
@@ -33,9 +29,6 @@ resource "azurerm_user_assigned_identity" "app_identity" {
   }
 }
 
-# ------------------------------------------------------
-# Virtual Machines
-# ------------------------------------------------------
 resource "azurerm_linux_virtual_machine" "app_vm" {
   count               = var.vm_count
   name                = "${var.project_name}-app-vm-${count.index}"
@@ -47,7 +40,6 @@ resource "azurerm_linux_virtual_machine" "app_vm" {
     azurerm_network_interface.app_nic[count.index].id
   ]
 
-  # No IP pública (Zero-Trust)
   disable_password_authentication = true
 
   admin_ssh_key {
@@ -77,5 +69,9 @@ resource "azurerm_linux_virtual_machine" "app_vm" {
     project = var.project_name
     env     = var.environment
   }
-}
 
+  depends_on = [
+    azurerm_network_interface.app_nic,
+    azurerm_user_assigned_identity.app_identity
+  ]
+}
