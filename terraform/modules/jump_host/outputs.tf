@@ -1,5 +1,5 @@
-output "jump_public_ip" {
-  value = azurerm_public_ip.jump_ip.ip_address
+output "jump_vm_id" {
+  value = azurerm_linux_virtual_machine.jump_vm.id
 }
 
 output "jump_private_ip" {

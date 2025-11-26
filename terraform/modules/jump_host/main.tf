@@ -7,21 +7,7 @@ resource "azurerm_network_interface" "jump_nic" {
     name                          = "internal"
     subnet_id                     = var.subnet_id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.jump_ip.id
   }
-
-  tags = {
-    project = var.project_name
-    env     = var.environment
-  }
-}
-
-resource "azurerm_public_ip" "jump_ip" {
-  name                = "${var.project_name}-jump-ip"
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  allocation_method   = "Static"
-  sku                 = "Standard"
 
   tags = {
     project = var.project_name
@@ -34,32 +20,20 @@ resource "azurerm_network_security_group" "jump_nsg" {
   location            = var.location
   resource_group_name = var.resource_group_name
 
-  security_rule {
-    name                       = "allow-ssh-from-home"
-    priority                   = 100
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "22"
-    source_address_prefix      = var.admin_ip   # ← tu IP
-    destination_address_prefix = "*"
-  }
-
   tags = {
     project = var.project_name
     env     = var.environment
   }
 }
 
-resource "azurerm_subnet_network_security_group_association" "jump_assoc" {
-  subnet_id                 = var.subnet_id
+resource "azurerm_network_interface_security_group_association" "jump_nic_assoc" {
+  network_interface_id      = azurerm_network_interface.jump_nic.id
   network_security_group_id = azurerm_network_security_group.jump_nsg.id
 }
 
 resource "azurerm_linux_virtual_machine" "jump_vm" {
   name                = "${var.project_name}-jump"
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = var.resource_group_name
   location            = var.location
   size                = "Standard_B1s"
   admin_username      = "azureadmin"
