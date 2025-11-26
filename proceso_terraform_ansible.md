@@ -48,9 +48,12 @@ terraform apply -var-file="env/dev.tfvars" -auto-approve
 
 ---
 
-## 3. Obtener IPs reales (salida JSON)
+## 3. Obtener IPs reales (az-cli pwsh)
 ```
-terraform output -json
+az vm list-ip-addresses `
+  --resource-group enterprise-platform-dev-rg `
+  --output table
+
 ```
 
 Ejemplo de salida:
