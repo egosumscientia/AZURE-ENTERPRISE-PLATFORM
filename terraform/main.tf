@@ -43,11 +43,11 @@ module "postgres" {
   project_name        = var.project_name
   location            = var.location
   environment         = var.environment
-
   resource_group_name = module.network.resource_group_name
   vnet_id             = module.network.vnet_id
+  vnet_name = module.network.vnet_name
   data_subnet_id      = module.network.subnets["data"]
-
   admin_username = "pgadmin"
   admin_password = "123"
 }
+

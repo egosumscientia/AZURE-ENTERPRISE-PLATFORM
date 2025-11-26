@@ -1,38 +1,54 @@
-# Private DNS Zone
+#############################################
+# PRIVATE DNS ZONE PARA POSTGRES FLEX INJECTED
+#############################################
 resource "azurerm_private_dns_zone" "postgres_dns" {
-  name                = "${var.project_name}.postgres.database.azure.com"
+  name                = "privatelink.postgres.database.azure.com"
   resource_group_name = var.resource_group_name
-
-  tags = {
-    project = var.project_name
-    env     = var.environment
-  }
-
-  depends_on = [var.vnet_id]  # forzar que VNet exista
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "postgres_dns_link" {
-  name                  = "${var.project_name}-postgres-dns-link"
+  name                  = "postgres-dns-link"
   resource_group_name   = var.resource_group_name
   private_dns_zone_name = azurerm_private_dns_zone.postgres_dns.name
   virtual_network_id    = var.vnet_id
   registration_enabled  = false
-
-  depends_on = [azurerm_private_dns_zone.postgres_dns, var.vnet_id]
 }
 
-# PostgreSQL Flexible Server
+#############################################
+# SUBNET DELEGADA PARA POSTGRES FLEX SERVER
+#############################################
+resource "azurerm_subnet" "postgres_subnet" {
+  name                 = "postgres-subnet"
+  resource_group_name  = var.resource_group_name
+  virtual_network_name = var.vnet_name
+  address_prefixes     = ["10.0.5.0/24"]
+
+  delegation {
+    name = "postgres-delegation"
+    service_delegation {
+      name    = "Microsoft.DBforPostgreSQL/flexibleServers"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
+}
+
+#############################################
+# POSTGRESQL FLEX SERVER (INJECTED MODE REAL)
+#############################################
 resource "azurerm_postgresql_flexible_server" "postgres" {
   name                         = "${var.project_name}-postgres"
   resource_group_name          = var.resource_group_name
   location                     = var.location
+
   administrator_login          = var.admin_username
   administrator_password       = var.admin_password
+
+  sku_name                     = "GP_Standard_D2s_v5"
+  version                      = "16"
   storage_mb                   = 32768
-  sku_name                      = var.sku_name
-  version                       = "15"
-  delegated_subnet_id           = var.data_subnet_id
-  private_dns_zone_id           = azurerm_private_dns_zone.postgres_dns.id
+
+  delegated_subnet_id          = azurerm_subnet.postgres_subnet.id
+  private_dns_zone_id          = azurerm_private_dns_zone.postgres_dns.id
   public_network_access_enabled = false
 
   tags = {
@@ -41,32 +57,8 @@ resource "azurerm_postgresql_flexible_server" "postgres" {
   }
 
   depends_on = [
-    var.data_subnet_id,
-    azurerm_private_dns_zone.postgres_dns
-  ]
-}
-
-# Private Endpoint
-resource "azurerm_private_endpoint" "postgres_pe" {
-  name                = "${var.project_name}-postgres-pe"
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  subnet_id           = var.data_subnet_id
-
-  private_service_connection {
-    name                           = "postgres-pe-connection"
-    private_connection_resource_id = azurerm_postgresql_flexible_server.postgres.id
-    is_manual_connection           = false
-    subresource_names              = ["postgresqlServer"]
-  }
-
-  tags = {
-    project = var.project_name
-    env     = var.environment
-  }
-
-  depends_on = [
-    azurerm_postgresql_flexible_server.postgres,
-    var.data_subnet_id
+    azurerm_private_dns_zone.postgres_dns,
+    azurerm_subnet.postgres_subnet,
+    azurerm_private_dns_zone_virtual_network_link.postgres_dns_link
   ]
 }

@@ -44,6 +44,10 @@ variable "admin_password" {
 variable "sku_name" {
   type        = string
   description = "SKU del servidor PostgreSQL Flexible Server"
-  default     = "GP_Standard_D2s_v5"
+  default     = "GP_Standard_D2s_v3"
+}
+
+variable "vnet_name" {
+  type = string
 }
 
