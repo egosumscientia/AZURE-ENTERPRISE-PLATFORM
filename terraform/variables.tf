@@ -29,5 +29,10 @@ variable "ssh_public_key_path" {
   type = string
 }
 
+variable "resource_group_name" {
+  description = "Nombre del Resource Group donde se desplegarán los recursos"
+  type        = string
+}
+
 
 
