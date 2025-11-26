@@ -21,7 +21,7 @@ resource "azurerm_subnet" "postgres_subnet" {
   name                 = "postgres-subnet"
   resource_group_name  = var.resource_group_name
   virtual_network_name = var.vnet_name
-  address_prefixes     = ["10.0.5.0/24"]
+  address_prefixes     = ["10.10.6.0/24"]
 
   delegation {
     name = "postgres-delegation"
