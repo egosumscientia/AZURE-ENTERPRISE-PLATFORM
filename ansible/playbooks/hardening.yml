@@ -13,24 +13,25 @@
       net.ipv4.conf.all.send_redirects: 0
 
   tasks:
-    - name: Gather service facts
-      service_facts:
+  - name: Gather service facts
+    service_facts:
 
-    - name: hardening | disable unnecessary services if they exist
-      service:
-        name: "{{ item }}"
-        state: stopped
-        enabled: no
-      loop: "{{ disable_services }}"
-      when: item in ansible_facts.services
+  - name: hardening | disable unnecessary services if they exist
+    service:
+      name: "{{ item }}"
+      state: stopped
+      enabled: no
+    loop: "{{ disable_services }}"
+    when: item in ansible_facts.services
 
-    - name: hardening | apply sysctl parameters
-      sysctl:
-        name: "{{ item.key }}"
-        value: "{{ item.value }}"
-        state: present
-        reload: yes
-      loop: "{{ sysctl_parameters|dict2items }}"
+  - name: hardening | apply sysctl parameters
+    sysctl:
+      name: "{{ item.key }}"
+      value: "{{ item.value }}"
+      state: present
+      reload: yes
+    loop: "{{ sysctl_parameters | dict2items }}"
+
 
   roles:
     - hardening
