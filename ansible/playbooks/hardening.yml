@@ -13,16 +13,11 @@
       net.ipv4.conf.all.send_redirects: 0
 
   tasks:
-  - name: Gather service facts
-    service_facts:
-
-  - name: hardening | disable unnecessary services if they exist
-    service:
-      name: "{{ item }}"
-      state: stopped
-      enabled: no
+  - name: hardening | stop unnecessary services safely
+    ansible.builtin.shell: |
+      systemctl stop {{ item }} || true
+      systemctl disable {{ item }} || true
     loop: "{{ disable_services }}"
-    when: item in ansible_facts.services
 
   - name: hardening | apply sysctl parameters
     sysctl:
@@ -31,7 +26,6 @@
       state: present
       reload: yes
     loop: "{{ sysctl_parameters | dict2items }}"
-
 
   roles:
     - hardening
