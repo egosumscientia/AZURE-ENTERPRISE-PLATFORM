@@ -229,6 +229,21 @@ resource "azurerm_subnet_network_security_group_association" "app_assoc" {
   ]
 }
 
+resource "azurerm_network_security_rule" "automation_to_app_ssh" {
+  name                        = "allow-ssh-from-automation"
+  priority                    = 120
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_address_prefix       = "10.10.4.0/24"
+  source_port_range           = "*"
+  destination_port_range      = "22"
+  destination_address_prefix  = "*"
+  network_security_group_name = azurerm_network_security_group.app_nsg.name
+  resource_group_name         = azurerm_resource_group.rg.name
+}
+
+
 resource "azurerm_subnet_network_security_group_association" "data_assoc" {
   subnet_id                 = azurerm_subnet.data.id
   network_security_group_id = azurerm_network_security_group.data_nsg.id
