@@ -19,7 +19,7 @@
         state: stopped
         enabled: no
       loop: "{{ disable_services }}"
-      ignore_errors: true
+      when: "'{{ item }}' in ansible_facts.services"
 
   roles:
     - hardening
