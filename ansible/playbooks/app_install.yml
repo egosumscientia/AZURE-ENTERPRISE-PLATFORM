@@ -1,14 +1,30 @@
 ---
 - name: application installation
   hosts: app_vms
-  gather_facts: true
+  gather_facts: false
 
-  vars:
-    app_install_packages:
-      - nginx
-      - python3
-      - python3-pip
-    app_source_dir: /opt/app
+  tasks:
+    - name: install packages
+      ansible.builtin.package:
+        name:
+          - nginx
+          - python3
+          - python3-pip
+        state: present
 
-  roles:
-    - app_install
+    - name: create app directory
+      ansible.builtin.file:
+        path: /opt/app
+        state: directory
+        mode: '0755'
+
+    - name: drop index.html
+      ansible.builtin.copy:
+        content: "<h1>APP OK</h1>"
+        dest: /opt/app/index.html
+
+    - name: enable nginx
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: yes
