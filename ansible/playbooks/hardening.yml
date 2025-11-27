@@ -13,13 +13,16 @@
       net.ipv4.conf.all.send_redirects: 0
 
   tasks:
-    - name: hardening | disable unnecessary services
+    - name: Gather service facts
+      service_facts:
+
+    - name: hardening | disable unnecessary services if they exist
       service:
         name: "{{ item }}"
         state: stopped
         enabled: no
       loop: "{{ disable_services }}"
-      failed_when: false
+      when: item in ansible_facts.services
 
   roles:
     - hardening
