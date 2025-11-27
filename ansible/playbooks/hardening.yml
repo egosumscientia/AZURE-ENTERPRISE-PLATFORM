@@ -26,6 +26,3 @@
       state: present
       reload: yes
     loop: "{{ sysctl_parameters | dict2items }}"
-
-  roles:
-    - hardening
