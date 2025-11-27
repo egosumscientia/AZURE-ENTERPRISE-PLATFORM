@@ -1,7 +1,7 @@
 resource "azurerm_network_interface" "jump_nic" {
   name                = "${var.project_name}-jump-nic"
   location            = var.location
-  resource_group_name = var.resource_group_name
+  resource_group_name = module.network.resource_group_name
 
   ip_configuration {
     name                          = "internal"
@@ -18,7 +18,7 @@ resource "azurerm_network_interface" "jump_nic" {
 resource "azurerm_network_security_group" "jump_nsg" {
   name                = "${var.project_name}-jump-nsg"
   location            = var.location
-  resource_group_name = var.resource_group_name
+  resource_group_name = module.network.resource_group_name
 
   tags = {
     project = var.project_name
@@ -33,7 +33,7 @@ resource "azurerm_network_interface_security_group_association" "jump_nic_assoc"
 
 resource "azurerm_linux_virtual_machine" "jump_vm" {
   name                = "${var.project_name}-jump"
-  resource_group_name = var.resource_group_name
+  resource_group_name = module.network.resource_group_name
   location            = var.location
   size                = "Standard_B1s"
   admin_username      = "azureadmin"

@@ -44,7 +44,7 @@ terraform plan -var-file="env/dev.tfvars"
 ### 2.5 Aplicar
 ```
 terraform apply -var-file="env/dev.tfvars" -auto-approve
-terraform destroy -var-file="env/dev.tfvars" -auto-approve
+
 ```
 
 ---
@@ -150,9 +150,6 @@ ansible-playbook playbooks/hardening.yml
 
 ---
 
-Fin del documento técnico para copiar y pegar. 
-
-
 ### BASTION
 az network bastion update `
   --name enterprise-platform-bastion `
@@ -160,4 +157,5 @@ az network bastion update `
   --enable-tunneling
 
 
-
+### Destruir todos los recursos
+terraform destroy -var-file="env/dev.tfvars" -auto-approve
