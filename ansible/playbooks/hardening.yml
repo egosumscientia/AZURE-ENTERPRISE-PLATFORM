@@ -24,5 +24,13 @@
       loop: "{{ disable_services }}"
       when: item in ansible_facts.services
 
+    - name: hardening | apply sysctl parameters
+      sysctl:
+        name: "{{ item.key }}"
+        value: "{{ item.value }}"
+        state: present
+        reload: yes
+      loop: "{{ sysctl_parameters|dict2items }}"
+
   roles:
     - hardening
