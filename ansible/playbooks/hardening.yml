@@ -13,7 +13,7 @@
       net.ipv4.conf.all.send_redirects: 0
 
   tasks:
-    - name: Disable unnecessary services
+    - name: hardening | disable unnecessary services
       service:
         name: "{{ item }}"
         state: stopped
